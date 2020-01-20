@@ -1,4 +1,4 @@
-package com.udemycourse.mobileappws.repository;
+package com.udemycourse.mobileappws.io.repository;
 
 import com.udemycourse.mobileappws.io.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;

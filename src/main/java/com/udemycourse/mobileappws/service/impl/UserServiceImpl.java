@@ -1,7 +1,7 @@
 package com.udemycourse.mobileappws.service.impl;
 
 import com.udemycourse.mobileappws.io.entity.UserEntity;
-import com.udemycourse.mobileappws.repository.UserRepository;
+import com.udemycourse.mobileappws.io.repository.UserRepository;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.Utils;
 import com.udemycourse.mobileappws.shared.dto.UserDTO;
@@ -46,6 +46,20 @@ public class UserServiceImpl implements UserService {
 
         UserDTO returnValue = new UserDTO();
         BeanUtils.copyProperties(storedUserDetails, returnValue);
+
+        return returnValue;
+    }
+
+    @Override
+    public UserDTO getUser(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(email);
+        }
+
+        UserDTO returnValue = new UserDTO();
+        BeanUtils.copyProperties(userEntity, returnValue);
 
         return returnValue;
     }
