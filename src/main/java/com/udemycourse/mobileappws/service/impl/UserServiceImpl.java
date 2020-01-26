@@ -5,6 +5,7 @@ import com.udemycourse.mobileappws.io.repository.UserRepository;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.Utils;
 import com.udemycourse.mobileappws.shared.dto.UserDTO;
+import com.udemycourse.mobileappws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -67,7 +68,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserByUserId(String userId) {
         UserDTO returnValue = new UserDTO();
-
         UserEntity userEntity = userRepository.findByUserId(userId);
 
         if (userEntity == null) {
@@ -75,6 +75,23 @@ public class UserServiceImpl implements UserService {
         }
 
         BeanUtils.copyProperties(userEntity, returnValue);
+        return returnValue;
+    }
+
+    @Override
+    public UserDTO updateUser(String userId, UserDTO userDTO) {
+        UserDTO returnValue = new UserDTO();
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        userEntity.setFirstName(userDTO.getFirstName());
+        userEntity.setLastName(userDTO.getLastName());
+
+        UserEntity updatedEntity = userRepository.save(userEntity);
+        BeanUtils.copyProperties(updatedEntity, returnValue);
 
         return returnValue;
     }
