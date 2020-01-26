@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO createUser(UserDTO userDTO) {
 
         if (userRepository.findByEmail(userDTO.getEmail()) != null) {
-            throw new RuntimeException("User already exists");
+            throw new UsernameNotFoundException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
         }
 
         UserEntity userEntity = new UserEntity();
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByEmail(email);
 
         if (userEntity == null) {
-            throw new UsernameNotFoundException(email);
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
 
         UserDTO returnValue = new UserDTO();
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByUserId(userId);
 
         if (userEntity == null) {
-            throw new UsernameNotFoundException(userId);
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
 
         BeanUtils.copyProperties(userEntity, returnValue);
@@ -97,11 +97,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteUser(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if (userEntity == null) {
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        userRepository.delete(userEntity);
+
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findByEmail(email);
 
         if (userEntity == null) {
-            throw new UsernameNotFoundException(email);
+            throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
 
         return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());

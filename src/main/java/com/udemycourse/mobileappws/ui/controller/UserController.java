@@ -5,6 +5,8 @@ import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.dto.UserDTO;
 import com.udemycourse.mobileappws.ui.model.request.UserDetailsRequestModel;
 import com.udemycourse.mobileappws.ui.model.response.ErrorMessages;
+import com.udemycourse.mobileappws.ui.model.response.OperationStatusModel;
+import com.udemycourse.mobileappws.ui.model.response.RequestOperationStatus;
 import com.udemycourse.mobileappws.ui.model.response.UserRest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +67,15 @@ public class UserController {
         return returnValue;
     }
 
-    @DeleteMapping
-    public  String deleteUser() {
-        return "delete user";
+    @DeleteMapping(path = "/{id}",
+            produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+    public OperationStatusModel deleteUser(@PathVariable("id") String userId) {
+        OperationStatusModel returnValue = new OperationStatusModel();
+        returnValue.setOperationName(RequestOperationName.DELETE.name());
+
+        userService.deleteUser(userId);
+
+        returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+        return returnValue;
     }
 }
