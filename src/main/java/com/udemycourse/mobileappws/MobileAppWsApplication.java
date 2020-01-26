@@ -1,5 +1,6 @@
 package com.udemycourse.mobileappws;
 
+import com.udemycourse.mobileappws.security.AppProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -20,5 +21,10 @@ public class MobileAppWsApplication {
 	@Bean
 	public SpringBootApplicationContext springBootApplicationContext() {
 		return new SpringBootApplicationContext();
+	}
+
+	@Bean(name = "AppProperties")
+	public AppProperties getAppProperties() {
+		return new AppProperties();
 	}
 }
