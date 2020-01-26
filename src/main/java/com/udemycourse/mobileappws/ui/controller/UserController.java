@@ -1,8 +1,10 @@
 package com.udemycourse.mobileappws.ui.controller;
 
+import com.udemycourse.mobileappws.exceptions.UserServiceException;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.dto.UserDTO;
 import com.udemycourse.mobileappws.ui.model.request.UserDetailsRequestModel;
+import com.udemycourse.mobileappws.ui.model.response.ErrorMessages;
 import com.udemycourse.mobileappws.ui.model.response.UserRest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,11 @@ public class UserController {
             consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
             )
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception {
+
+        if (userDetails.getFirstName().isEmpty()) {
+            throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+        }
 
         UserRest returnValue = new UserRest();
 
