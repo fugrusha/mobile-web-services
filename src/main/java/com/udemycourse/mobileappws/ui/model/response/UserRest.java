@@ -2,14 +2,13 @@ package com.udemycourse.mobileappws.ui.model.response;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class UserRest {
-
-    public String userId;
-
+    private String userId;
     private String firstName;
-
     private String lastName;
-
     private String email;
+    private List<AddressRest> addresses;
 }

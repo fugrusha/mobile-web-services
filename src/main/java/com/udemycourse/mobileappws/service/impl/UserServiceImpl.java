@@ -4,8 +4,10 @@ import com.udemycourse.mobileappws.io.entity.UserEntity;
 import com.udemycourse.mobileappws.io.repository.UserRepository;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.Utils;
+import com.udemycourse.mobileappws.shared.dto.AddressDTO;
 import com.udemycourse.mobileappws.shared.dto.UserDTO;
 import com.udemycourse.mobileappws.ui.model.response.ErrorMessages;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,8 +41,15 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException(ErrorMessages.RECORD_ALREADY_EXISTS.getErrorMessage());
         }
 
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(userDTO, userEntity);
+        for (int i = 0; i < userDTO.getAddresses().size(); i++) {
+            AddressDTO addressDTO = userDTO.getAddresses().get(i);
+            addressDTO.setUserDetails(userDTO);
+            addressDTO.setAddressId(utils.generateAddressId(30));
+            userDTO.getAddresses().set(i, addressDTO);
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        UserEntity userEntity = modelMapper.map(userDTO, UserEntity.class);
 
         userEntity.setEncryptedPassword(passwordEncoder.encode(userDTO.getPassword()));
 
@@ -49,8 +58,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
-        UserDTO returnValue = new UserDTO();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
+        UserDTO returnValue = modelMapper.map(storedUserDetails, UserDTO.class);
 
         return returnValue;
     }
