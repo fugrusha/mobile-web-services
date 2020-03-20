@@ -56,6 +56,9 @@ public class UserServiceImpl implements UserService {
         String publicUserId = utils.generateUserId(30);
         userEntity.setUserId(publicUserId);
 
+        userEntity.setEmailVerificationToken(utils.generateEmailVerificationtoken(publicUserId));
+        userEntity.setEmailVerificationStatus(false);
+
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
         UserDTO returnValue = modelMapper.map(storedUserDetails, UserDTO.class);
@@ -126,6 +129,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean verifyEmailToken(String token) {
+        boolean returnValue = false;
+
+        UserEntity userEntity = userRepository.findUserByVerificationToken(token);
+
+        if (userEntity != null) {
+            boolean isTokenExpired = Utils.isTokenExpired(token);
+            if (!isTokenExpired) {
+                userEntity.setEmailVerificationToken(null);
+                userEntity.setEmailVerificationStatus(Boolean.TRUE);
+                userRepository.save(userEntity);
+                returnValue = true;
+            }
+        }
+
+        return returnValue;
+    }
+
+    @Override
     public void deleteUser(String userId) {
         UserEntity userEntity = userRepository.findByUserId(userId);
 
@@ -144,6 +166,10 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
 
-        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
+                userEntity.getEmailVerificationStatus(),
+                true, true, true, new ArrayList<>());
+
+//        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
     }
 }

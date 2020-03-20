@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
+
     UserDTO createUser(UserDTO user);
 
     UserDTO getUser(String email);
@@ -17,4 +18,6 @@ public interface UserService extends UserDetailsService {
     void deleteUser(String userId);
 
     List<UserDTO> getUsers(int page, int limit);
+
+    boolean verifyEmailToken(String token);
 }
