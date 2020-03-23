@@ -3,6 +3,7 @@ package com.udemycourse.mobileappws.service.impl;
 import com.udemycourse.mobileappws.io.entity.UserEntity;
 import com.udemycourse.mobileappws.io.repository.UserRepository;
 import com.udemycourse.mobileappws.service.UserService;
+import com.udemycourse.mobileappws.shared.AmazonSES;
 import com.udemycourse.mobileappws.shared.Utils;
 import com.udemycourse.mobileappws.shared.dto.AddressDTO;
 import com.udemycourse.mobileappws.shared.dto.UserDTO;
@@ -60,6 +61,9 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmailVerificationStatus(false);
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
+
+        // send verification email
+        new AmazonSES().verifyEmail(userDTO);
 
         UserDTO returnValue = modelMapper.map(storedUserDetails, UserDTO.class);
 
