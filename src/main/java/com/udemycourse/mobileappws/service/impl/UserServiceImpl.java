@@ -1,6 +1,8 @@
 package com.udemycourse.mobileappws.service.impl;
 
+import com.udemycourse.mobileappws.io.entity.PasswordResetTokenEntity;
 import com.udemycourse.mobileappws.io.entity.UserEntity;
+import com.udemycourse.mobileappws.io.repository.PasswordResetTokenRepository;
 import com.udemycourse.mobileappws.io.repository.UserRepository;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.AmazonSES;
@@ -30,6 +32,9 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
     private Utils utils;
 
     @Autowired
@@ -57,7 +62,7 @@ public class UserServiceImpl implements UserService {
         String publicUserId = utils.generateUserId(30);
         userEntity.setUserId(publicUserId);
 
-        userEntity.setEmailVerificationToken(utils.generateEmailVerificationtoken(publicUserId));
+        userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
         userEntity.setEmailVerificationStatus(false);
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
@@ -175,5 +180,59 @@ public class UserServiceImpl implements UserService {
                 true, true, true, new ArrayList<>());
 
 //        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
+    }
+
+    @Override
+    public boolean requestPasswordReset(String email) {
+        boolean returnValue = false;
+
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if (userEntity == null) {
+            return returnValue;
+        }
+
+        String resetToken = Utils.generatePasswordResetToken(userEntity.getUserId());
+
+        PasswordResetTokenEntity resetTokenEntity = new PasswordResetTokenEntity();
+        resetTokenEntity.setToken(resetToken);
+        resetTokenEntity.setUserDetails(userEntity);
+        passwordResetTokenRepository.save(resetTokenEntity);
+
+        returnValue = new AmazonSES().sendPasswordResetRequest(
+                userEntity.getFirstName(),
+                userEntity.getEmail(),
+                resetToken);
+
+        return returnValue;
+    }
+
+    @Override
+    public boolean resetPassword(String password, String token) {
+        boolean returnValue = false;
+
+        if (Utils.isTokenExpired(token)) {
+            return returnValue;
+        }
+
+        PasswordResetTokenEntity passwordResetTokenEntity = passwordResetTokenRepository.findByToken(token);
+
+        if (passwordResetTokenEntity == null) {
+            return returnValue;
+        }
+
+        String encodedPassword = passwordEncoder.encode(password);
+
+        UserEntity userEntity = passwordResetTokenEntity.getUserDetails();
+        userEntity.setEncryptedPassword(encodedPassword);
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+
+        if (savedUserEntity != null && savedUserEntity.getEncryptedPassword().equalsIgnoreCase(encodedPassword)) {
+            returnValue = true;
+        }
+
+        passwordResetTokenRepository.delete(passwordResetTokenEntity);
+
+        return returnValue;
     }
 }

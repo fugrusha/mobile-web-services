@@ -44,10 +44,19 @@ public class Utils {
         return generateRandomString(length);
     }
 
-    public String generateEmailVerificationtoken(String publicUserId) {
+    public String generateEmailVerificationToken(String publicUserId) {
         String token = Jwts.builder()
                 .setSubject(publicUserId)
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
+                .compact();
+        return token;
+    }
+
+    public static String generatePasswordResetToken(String publicUserId) {
+        String token = Jwts.builder()
+                .setSubject(publicUserId)
+                .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.PASSWORD_RESET_EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SecurityConstants.getTokenSecret())
                 .compact();
         return token;
