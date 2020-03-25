@@ -75,8 +75,7 @@ public class AmazonSES {
         client.sendEmail(request);
     }
 
-    public boolean sendPasswordResetRequest(String firstName, String email, String token)
-    {
+    public boolean sendPasswordResetRequest(String firstName, String email, String token) {
         boolean returnValue = false;
 
         AmazonSimpleEmailService client = AmazonSimpleEmailServiceClientBuilder.standard()
