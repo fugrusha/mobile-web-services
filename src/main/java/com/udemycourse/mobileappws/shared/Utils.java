@@ -2,6 +2,7 @@ package com.udemycourse.mobileappws.shared;
 
 import com.udemycourse.mobileappws.security.SecurityConstants;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,21 @@ public class Utils {
     private final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     public static boolean isTokenExpired(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(SecurityConstants.getTokenSecret())
-                .parseClaimsJws(token).getBody();
+        boolean returnValue = false;
 
-        Date tokenExpirationDate = claims.getExpiration();
-        Date todayDate = new Date();
-        return tokenExpirationDate.before(todayDate);
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SecurityConstants.getTokenSecret())
+                    .parseClaimsJws(token).getBody();
+
+            Date tokenExpirationDate = claims.getExpiration();
+            Date todayDate = new Date();
+            returnValue = tokenExpirationDate.before(todayDate);
+        } catch (ExpiredJwtException e) {
+            returnValue = true;
+        }
+
+        return returnValue;
     }
 
     private String generateRandomString(int length) {
