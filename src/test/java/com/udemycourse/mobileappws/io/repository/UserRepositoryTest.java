@@ -24,6 +24,8 @@ public class UserRepositoryTest {
 
     static boolean recordsCreated = false;
 
+    static String userId = "456fsa";
+
     @BeforeEach
     void setUp() throws Exception {
         if (!recordsCreated) {
@@ -104,13 +106,37 @@ public class UserRepositoryTest {
     public void testUpdateUserEmailVerificationStatus() {
         boolean newStatus = false;
 
-        userRepository.updateUserVerificationStatus(newStatus, "456fsa");
+        userRepository.updateUserVerificationStatus(newStatus, userId);
 
-        UserEntity userEntity = userRepository.findByUserId("456fsa");
+        UserEntity userEntity = userRepository.findByUserId(userId);
 
         boolean storedVerificationStatus = userEntity.getEmailVerificationStatus();
 
         assertEquals(storedVerificationStatus, newStatus);
+    }
+
+    @Test
+    public void testFindUserEntityByUserId() {
+        UserEntity userEntity = userRepository.findUserEntityByUserId(userId);
+
+        assertNotNull(userEntity);
+        assertEquals(userId, userEntity.getUserId());
+    }
+
+    @Test
+    public void testGetUserFullNameByUserId() {
+        List<Object[]> records = userRepository.findUserFullName(userId);
+
+        assertNotNull(records);
+        assertEquals(1, records.size());
+
+        Object[] userDetails = records.get(0);
+
+        String firstName = String.valueOf(userDetails[0]);
+        String lastName = String.valueOf(userDetails[1]);
+
+        assertNotNull(firstName);
+        assertNotNull(lastName);
     }
 
     private void createRecords() {

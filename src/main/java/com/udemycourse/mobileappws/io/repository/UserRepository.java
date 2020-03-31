@@ -25,26 +25,32 @@ public interface UserRepository extends PagingAndSortingRepository<UserEntity, L
             nativeQuery = true)
     Page<UserEntity> findAllUsersWithConfirmedEmail(Pageable pageable);
 
-    @Query(value = "select * from USERS u where u.firstName = ?1",
+    @Query(value = "select * from users u where u.first_name = ?1",
             nativeQuery = true)
     List<UserEntity> findUserByFirstName(String firstName);
 
-    @Query(value = "select * from USERS u where u.lastName = :lastName",
+    @Query(value = "select * from users u where u.last_name = :lastName",
             nativeQuery = true)
     List<UserEntity> findUserByLastName(String lastName);
 
-    @Query(value = "select * from USERS u where u.firstName = %:keyword% or u.lastName = %:keyword%",
+    @Query(value = "select * from users u where u.first_name = %:keyword% or u.last_name = %:keyword%",
             nativeQuery = true)
     List<UserEntity> findUserByKeyword(String keyword);
 
-    @Query(value = "select u.firstName, u.lastName from USERS u"
-            + " where u.firstName = %:keyword% or u.lastName = %:keyword%",
+    @Query(value = "select u.first_name, u.last_name from users u"
+            + " where u.first_name = %:keyword% or u.last_name = %:keyword%",
             nativeQuery = true)
     List<Object[]> findUserFirstNameAndLastNameByKeyword(String keyword);
 
     @Transactional
     @Modifying
-    @Query(value = "update USERS u set u.EMAIL_VERIFICATION_STATUS = :status where u.userId = :userId",
+    @Query(value = "update users u set u.EMAIL_VERIFICATION_STATUS = :status where u.user_id = :userId",
             nativeQuery = true)
     void updateUserVerificationStatus(boolean status, String userId);
+
+    @Query("select u from UserEntity u where u.userId = :userId")
+    UserEntity findUserEntityByUserId(String userId);
+
+    @Query("select u.firstName, u.lastName from UserEntity u where u.userId = :userId ")
+    List<Object[]> findUserFullName(String userId);
 }
