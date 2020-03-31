@@ -163,6 +163,7 @@ public class UserController {
 
     @GetMapping(path = "/email-verification",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "application/hal+json"})
+//    @CrossOrigin(origins = {"http://localhost:9090", "http://localhost:5050"})
     public OperationStatusModel verifyEmailToken(
             @RequestParam(value = "token") String token
     ) {
