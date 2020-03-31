@@ -9,6 +9,9 @@ import com.udemycourse.mobileappws.ui.model.request.PasswordResetModel;
 import com.udemycourse.mobileappws.ui.model.request.PasswordResetRequestModel;
 import com.udemycourse.mobileappws.ui.model.request.UserDetailsRequestModel;
 import com.udemycourse.mobileappws.ui.model.response.*;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +39,13 @@ public class UserController {
     @Autowired
     private AddressService addressService;
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "authorization",
+                    value = "${userController.authorization.header.description}",
+                    paramType = "header")
+    })
+    @ApiOperation(value = "Get User details endpoint", notes = "Returns UserDetailsDTO")
     @GetMapping(path = "/{id}",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public UserRest getUser(@PathVariable String id) {
@@ -70,6 +80,12 @@ public class UserController {
         return returnValue;
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "authorization",
+                    value = "${userController.authorization.header.description}",
+                    paramType = "header")
+    })
     @PutMapping(path = "/{id}",
             consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
@@ -86,6 +102,12 @@ public class UserController {
         return returnValue;
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "authorization",
+                    value = "${userController.authorization.header.description}",
+                    paramType = "header")
+    })
     @DeleteMapping(path = "/{id}",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public OperationStatusModel deleteUser(@PathVariable("id") String userId) {
@@ -98,6 +120,12 @@ public class UserController {
         return returnValue;
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "authorization",
+                    value = "${userController.authorization.header.description}",
+                    paramType = "header")
+    })
     @GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public List<UserRest> getUsers(
             @RequestParam(value="page", defaultValue = "0") int page,
@@ -118,6 +146,12 @@ public class UserController {
         return returnValue;
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "authorization",
+                    value = "${userController.authorization.header.description}",
+                    paramType = "header")
+    })
     @GetMapping(path = "/{id}/addresses",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "application/hal+json"})
     public CollectionModel<AddressRest> getUserAddresses(@PathVariable String id) {
@@ -141,6 +175,12 @@ public class UserController {
         return new CollectionModel<>(addressesListRestModel);
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(
+                    name = "authorization",
+                    value = "${userController.authorization.header.description}",
+                    paramType = "header")
+    })
     @GetMapping(path = "/{userId}/addresses/{addressId}",
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE, "application/hal+json" })
     public EntityModel<AddressRest> getUserAddress(
