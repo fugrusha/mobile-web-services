@@ -3,6 +3,7 @@ package com.udemycourse.mobileappws.shared.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -18,4 +19,5 @@ public class UserDTO implements Serializable {
     private String emailVerificationToken;
     private Boolean emailVerificationStatus = false;
     private List<AddressDTO> addresses;
+    private Collection<String> roles;
 }

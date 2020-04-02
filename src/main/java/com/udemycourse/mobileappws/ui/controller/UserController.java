@@ -1,6 +1,7 @@
 package com.udemycourse.mobileappws.ui.controller;
 
 import com.udemycourse.mobileappws.exceptions.UserServiceException;
+import com.udemycourse.mobileappws.io.entity.RoleType;
 import com.udemycourse.mobileappws.service.AddressService;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.dto.AddressDTO;
@@ -20,11 +21,14 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -39,6 +43,7 @@ public class UserController {
     @Autowired
     private AddressService addressService;
 
+    @PostAuthorize("hasRole('ADMIN') or returnObject.userId == principal.userId")
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "authorization",
@@ -74,6 +79,8 @@ public class UserController {
         ModelMapper modelMapper = new ModelMapper();
         UserDTO userDTO = modelMapper.map(userDetails, UserDTO.class);
 
+        userDTO.setRoles(Set.of(RoleType.ROLE_USER.name()));
+
         UserDTO createdUser = userService.createUser(userDTO);
         returnValue = modelMapper.map(createdUser, UserRest.class);
 
@@ -102,6 +109,8 @@ public class UserController {
         return returnValue;
     }
 
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")
+//    @Secured("ROLE_ADMIN")
     @ApiImplicitParams({
             @ApiImplicitParam(
                     name = "authorization",

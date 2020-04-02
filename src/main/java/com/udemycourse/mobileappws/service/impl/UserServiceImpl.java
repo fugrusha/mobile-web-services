@@ -1,9 +1,12 @@
 package com.udemycourse.mobileappws.service.impl;
 
 import com.udemycourse.mobileappws.io.entity.PasswordResetTokenEntity;
+import com.udemycourse.mobileappws.io.entity.RoleEntity;
 import com.udemycourse.mobileappws.io.entity.UserEntity;
 import com.udemycourse.mobileappws.io.repository.PasswordResetTokenRepository;
+import com.udemycourse.mobileappws.io.repository.RoleRepository;
 import com.udemycourse.mobileappws.io.repository.UserRepository;
+import com.udemycourse.mobileappws.security.UserPrincipal;
 import com.udemycourse.mobileappws.service.UserService;
 import com.udemycourse.mobileappws.shared.AmazonSES;
 import com.udemycourse.mobileappws.shared.Utils;
@@ -16,13 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -30,6 +34,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
@@ -67,6 +74,18 @@ public class UserServiceImpl implements UserService {
 
         userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
         userEntity.setEmailVerificationStatus(false);
+
+        // Set roles
+        Collection<RoleEntity> roleEntities = new HashSet<>();
+
+        for (String role : userDTO.getRoles()) {
+            RoleEntity roleEntity = roleRepository.findByName(role);
+            if (roleEntity != null ) {
+                roleEntities.add(roleEntity);
+            }
+        }
+
+        userEntity.setRoles(roleEntities);
 
         UserEntity storedUserDetails = userRepository.save(userEntity);
 
@@ -178,9 +197,11 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
 
-        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
-                userEntity.getEmailVerificationStatus(),
-                true, true, true, new ArrayList<>());
+        return new UserPrincipal(userEntity);
+
+//        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(),
+//                userEntity.getEmailVerificationStatus(),
+//                true, true, true, new ArrayList<>());
 
 //        return new User(userEntity.getEmail(), userEntity.getEncryptedPassword(), new ArrayList<>());
     }
